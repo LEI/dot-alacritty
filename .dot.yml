@@ -1,0 +1,43 @@
+---
+role:
+  env: REPO=github.com/jwilm/alacritty
+  install:
+    # - |
+    #   rustup override set stable
+    #   rustup update stable
+    - command: 'git -C "$HOME/src/$REPO" pull origin master --quiet'
+      if: 'test -d "$HOME/src/github.com/jwilm/alacritty"'
+      os: ["darwin"]
+    - command: 'git clone https://$REPO.git "$HOME/src/$REPO" --quiet'
+      if: 'test ! -d "$HOME/src/github.com/jwilm/alacritty"'
+      os: ["darwin"]
+    # cd "$HOME/src/$REPO"
+
+    # - command: cargo install --git https://$REPO
+    #   if: 'test ! -f "$HOME/.cargo/bin/alacritty"'
+    #   os: ["darwin"]
+
+  pkg:
+    - name: alacritty
+      os: ["archlinux"]
+    # Debian/Ubuntu
+    # git clone https://github.com/jwilm/alacritty.git
+    # cd alacritty
+    # cargo install cargo-deb
+    # cargo deb --install
+  dir: .config/alacritty
+  link:
+    - "alacritty.yml:.config/alacritty"
+  post_install:
+    # cargo build --release
+    # sudo cp target/release/alacritty /usr/local/bin # or anywhere else in $PATH
+    # sudo desktop-file-install alacritty.desktop
+    # sudo update-desktop-database
+    - command: |
+        cd "$HOME/src/$REPO"
+        make app
+        cp -r target/release/osx/Alacritty.app /Applications/
+      if: '[ "$DOT_PKG -eq 1 ]' # "test ! -d /Applications/Alacritty.app"
+      os: ["darwin"]
+    # sudo mkdir -p /usr/local/share/man/man1
+    # gzip -c alacritty.man | sudo tee /usr/local/share/man/man1/alacritty.1.gz > /dev/null
